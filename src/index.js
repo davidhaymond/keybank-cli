@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const prompts = require('prompts');
+const buildMarkdownTable = require('./buildMarkdownTable');
 
 (async () => {
     const browser = await puppeteer.launch();
@@ -31,11 +32,18 @@ const prompts = require('prompts');
             message: question,
         });
         await page.type('input[data-test="sq_answer_input"]', answer);
-        await Promise.all([
-            page.waitForSelector('.account-portal-container'),
+        const [accountsGroup] = await Promise.all([
+            page.waitForSelector('accounts-group'),
             page.click('button[data-test="sq_submit_btn"]'),
         ]);
-        await page.screenshot({path: 'dashboard.png'});
+        const accountData = await page.$$eval('account-tile', nodes => nodes.map(
+            el => ({
+                nickname: el.querySelector('h3 a').innerText,
+                type: el.querySelector('span[aria-label="account.accountLabel"]').innerText,
+                balance: el.querySelector('.ibx-card__description-hero').innerText,
+            })
+        ));
+        console.log(buildMarkdownTable(accountData));
     }
     catch(ex) {
         console.log(ex);
