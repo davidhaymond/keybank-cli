@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "main": "src/index.js",
   "scripts": {
-      "start": "node src/index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
+    "markdown-table": "^2.0.0",
     "prompts": "^2.3.2",
     "puppeteer": "^5.2.1"
   },
