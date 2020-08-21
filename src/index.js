@@ -20,7 +20,7 @@ const promptForCreds = async () => await prompts([
     },
 ]);
 
-(async () => {
+module.exports = async () => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4182.0 Safari/537.36');
@@ -80,4 +80,4 @@ const promptForCreds = async () => await prompts([
     finally {
         await browser.close();
     }
-})();
+};
