@@ -2,21 +2,41 @@ const puppeteer = require('puppeteer');
 const prompts = require('prompts');
 const table = require('markdown-table');
 
+const envCreds = () => process.env.KEYBANK_USER_ID ? {
+    userID: process.env.KEYBANK_USER_ID,
+    password: process.env.KEYBANK_PASSWORD,
+} : null;
+
+const promptForCreds = async () => await prompts([
+    {
+        type: 'text',
+        name: 'userID',
+        message: 'Username:',
+    },
+    {
+        type: 'password',
+        name: 'password',
+        message: 'Password:',
+    },
+]);
+
 (async () => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4182.0 Safari/537.36');
+    const { userID, password } = envCreds() || await promptForCreds();
+
     try {
         const [userIdInput] = await Promise.all([
             page.waitForSelector('#logUidTxt'),
             page.goto('https://ibx.key.com/ibxolb/login/index.html#/login'),
         ]);
-        await userIdInput.type(process.env.KEYBANK_USER_ID);
+        await userIdInput.type(userID);
         const [pwdInput] = await Promise.all([
             page.waitForSelector('#logPwdTxt'),
             page.click('button[data-analytics*="login_authenticate"]'),
         ]);
-        await pwdInput.type(process.env.KEYBANK_PASSWORD);
+        await pwdInput.type(password);
         const [questionsBtn] = await Promise.all([
             page.waitForXPath('//button[. = "Security Questions"]'),
             page.click('button[data-analytics*="login_submit"]'),
